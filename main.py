@@ -8,14 +8,19 @@ import crud
 from database import engine, get_db
 from auth import verify_password, create_access_token, get_current_user
 
+from routers import websocket_routes
+from websocket_manager import manager
+
 # Database tables actually create ho rahi hain yahan (agar exist nahi karti)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+app.include_router(websocket_routes.router)
+
 @app.get("/")
 def hello():
-    return {"message": "Patient Management system API"}
+    return {"message": "fastapi"}
 
 # ---------- REGISTER ----------
 @app.post("/register", response_model=schemas.UserOut)
@@ -39,12 +44,14 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 # ---------- CREATE ITEM (protected) ----------
 @app.post("/items/", response_model=schemas.ItemOut)
-def create_item(
+async def create_item(
     item: schemas.ItemCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    return crud.create_item(db, item, current_user.id)
+    new_item = crud.create_item(db, item, current_user.id)
+    await manager.broadcast(f"📦 New item added: {new_item.title} by {current_user.username}")
+    return new_item
 
 
 # ---------- READ ITEMS (protected) ----------
