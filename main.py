@@ -34,6 +34,10 @@ app.include_router(websocket_routes.router)
 def hello():
     return {"message": "fastapi"}
 
+@app.get("/messages/", response_model=list[schemas.ChatMessageOut])
+def get_messages(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    return crud.get_recent_messages(db)
+
 # ---------- REGISTER ----------
 @app.post("/register", response_model=schemas.UserOut)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):

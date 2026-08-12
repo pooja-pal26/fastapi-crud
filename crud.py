@@ -3,6 +3,16 @@ import models
 import schemas
 from auth import hash_password
 
+def save_message(db: Session, sender_username: str, message: str):
+    db_message = models.ChatMessage(sender_username=sender_username, message=message)
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+    return db_message
+
+def get_recent_messages(db: Session, limit: int = 50):
+    return db.query(models.ChatMessage).order_by(models.ChatMessage.timestamp.desc()).limit(limit).all()[::-1]
+
 # ---------- USER CRUD ----------
 
 def create_user(db: Session, user: schemas.UserCreate):

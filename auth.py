@@ -116,7 +116,7 @@ def verify_ws_token(token: str, db: Session):
         username = payload.get("sub")
 
         if username is None:
-            print("❌ WebSocket token does not contain username")
+            print(" WebSocket token does not contain username")
             return None
 
         user = db.query(models.User).filter(
@@ -124,7 +124,7 @@ def verify_ws_token(token: str, db: Session):
         ).first()
 
         if user is None:
-            print(f"❌ User '{username}' not found")
+            print(f" User '{username}' not found")
             return None
 
         print(f"✅ WebSocket user verified: {username}")
@@ -132,5 +132,5 @@ def verify_ws_token(token: str, db: Session):
         return user
 
     except JWTError as e:
-        print(f"❌ WebSocket JWT error: {e}")
+        print(f"WebSocket JWT error: {e}")
         return None

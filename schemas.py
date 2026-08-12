@@ -1,5 +1,14 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import datetime
+
+class ChatMessageOut(BaseModel):
+    id: int
+    sender_username: str
+    message: str
+    timestamp: datetime
+    class Config:
+        from_attributes = True
 
 # ---------- User Schemas ----------
 class UserCreate(BaseModel):
