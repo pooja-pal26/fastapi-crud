@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from auth import verify_ws_token
 from websocket_manager import manager
-import crud   # 🆕 add kiya — save_message() use karne ke liye
+import crud
 
 router = APIRouter()
 
@@ -19,8 +19,8 @@ async def websocket_endpoint(websocket: WebSocket, token: str, db: Session = Dep
     try:
         while True:
             data = await websocket.receive_text()
-            crud.save_message(db, user.username, data)   # 🆕 add kiya — DB mein save
-            await manager.broadcast(f"{user.username}: {data}")
+            crud.save_message(db, user.username, data)
+            await manager.broadcast(f"{user.username}: {data}", sender=websocket)   # sender pass kiya
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"{user.username} left the chat")
+        await manager.broadcast(f"{user.username} left the chat", sender=websocket)

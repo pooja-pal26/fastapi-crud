@@ -13,9 +13,10 @@ class ConnectionManager:
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
 
-    async def broadcast(self, message: str):
+    async def broadcast(self, message: str, sender: WebSocket = None):
         for connection in self.active_connections:
-            await connection.send_text(message)
+            if connection != sender:
+                await connection.send_text(message)
 
 
 manager = ConnectionManager()
