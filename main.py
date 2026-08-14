@@ -29,6 +29,7 @@ app.add_middleware(
         "http://localhost:5173",
         "http://localhost:5174",
         "https://chat-frontend-pooja.netlify.app",
+        "https://chat-frontend-pooja.netlify.app/",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -119,22 +120,27 @@ async def upload_attachment(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    file_url = upload_file(file.file)
-    file_type = "image" if file.content_type.startswith("image/") else "file"
+    try:
+        file_url = upload_file(file.file)
+        file_type = "image" if file.content_type.startswith("image/") else "file"
 
-    saved_msg = crud.save_message(
-        db, sender_username=current_user.username,
-        message=None, file_url=file_url, file_type=file_type
-    )
+        saved_msg = crud.save_message(
+            db, sender_username=current_user.username,
+            message=None, file_url=file_url, file_type=file_type
+        )
 
-    import json
-    await manager.broadcast(
-        json.dumps({
-            "sender": current_user.username,
-            "file_url": file_url,
-            "file_type": file_type
-        }),
-        sender=None
-    )
+        import json
+        await manager.broadcast(
+            json.dumps({
+                "sender": current_user.username,
+                "file_url": file_url,
+                "file_type": file_type
+            }),
+            sender=None
+        )
 
-    return {"file_url": file_url, "file_type": file_type}
+        return {"file_url": file_url, "file_type": file_type}
+    except Exception as e:
+        print("Upload Error:", e)
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
