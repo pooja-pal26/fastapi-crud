@@ -24,7 +24,7 @@ if not SECRET_KEY:
 # ---------- JWT Config ----------
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 10080
 
 
 # ---------- Password Hashing ----------

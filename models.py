@@ -4,7 +4,6 @@ from datetime import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime
 
 
-
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
     id = Column(Integer, primary_key=True, index=True)
