@@ -3,13 +3,16 @@ from database import Base
 from datetime import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime
 
+
+
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
     id = Column(Integer, primary_key=True, index=True)
     sender_username = Column(String, nullable=False)
-    message = Column(String, nullable=False)
+    message = Column(String, nullable=True)
+    file_url = Column(String, nullable=True)
+    file_type = Column(String, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
-
     
 class User(Base):
     __tablename__ = "users"

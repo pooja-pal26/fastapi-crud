@@ -2,10 +2,21 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 
+
 class ChatMessageOut(BaseModel):
     id: int
     sender_username: str
     message: str
+    timestamp: datetime
+    class Config:
+        from_attributes = True
+
+class ChatMessageOut(BaseModel):
+    id: int
+    sender_username: str
+    message: Optional[str] = None
+    file_url: Optional[str] = None
+    file_type: Optional[str] = None
     timestamp: datetime
     class Config:
         from_attributes = True

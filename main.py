@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi import UploadFile, File
+from cloudinary_config import upload_file
+
 
 import models
 import schemas
@@ -108,3 +111,30 @@ def delete_item(
     if not deleted_item:
         raise HTTPException(status_code=404, detail="Item not found")
     return {"message": "Item deleted successfully"}
+
+
+@app.post("/upload/")
+async def upload_attachment(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    file_url = upload_file(file.file)
+    file_type = "image" if file.content_type.startswith("image/") else "file"
+
+    saved_msg = crud.save_message(
+        db, sender_username=current_user.username,
+        message=None, file_url=file_url, file_type=file_type
+    )
+
+    import json
+    await manager.broadcast(
+        json.dumps({
+            "sender": current_user.username,
+            "file_url": file_url,
+            "file_type": file_type
+        }),
+        sender=None
+    )
+
+    return {"file_url": file_url, "file_type": file_type}

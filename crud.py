@@ -13,6 +13,19 @@ def save_message(db: Session, sender_username: str, message: str):
 def get_recent_messages(db: Session, limit: int = 50):
     return db.query(models.ChatMessage).order_by(models.ChatMessage.timestamp.desc()).limit(limit).all()[::-1]
 
+
+def save_message(db: Session, sender_username: str, message: str = None, file_url: str = None, file_type: str = None):
+    db_message = models.ChatMessage(
+        sender_username=sender_username,
+        message=message,
+        file_url=file_url,
+        file_type=file_type,
+    )
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+    return db_message
+
 # ---------- USER CRUD ----------
 
 def create_user(db: Session, user: schemas.UserCreate):
