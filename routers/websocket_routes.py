@@ -20,7 +20,7 @@ async def websocket_endpoint(websocket: WebSocket, token: str, db: Session = Dep
         while True:
             data = await websocket.receive_text()
             crud.save_message(db, user.username, data)
-            await manager.broadcast(f"{user.username}: {data}", sender=websocket)   # sender pass kiya
+            await manager.broadcast(data, sender=websocket)   # sirf message, username nahi
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"{user.username} left the chat", sender=websocket)
+        await manager.broadcast("left the chat", sender=websocket)   # yahan bhi username hataya
