@@ -100,6 +100,15 @@ def update_item(
         raise HTTPException(status_code=404, detail="Item not found")
     return updated_item
 
+@app.get("/users/", response_model=list[schemas.UserOut])
+def get_all_users(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    return crud.get_all_users(db, current_user.username)
+
+
+@app.get("/conversation/{other_username}", response_model=list[schemas.ChatMessageOut])
+def get_conversation(other_username: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    return crud.get_conversation(db, current_user.username, other_username)
+
 
 # ---------- DELETE ITEM (protected) ----------
 @app.delete("/items/{item_id}")
@@ -143,4 +152,7 @@ async def upload_attachment(
     except Exception as e:
         print("Upload Error:", e)
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+
+    
 

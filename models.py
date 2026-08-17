@@ -8,6 +8,7 @@ class ChatMessage(Base):
     __tablename__ = "chat_messages"
     id = Column(Integer, primary_key=True, index=True)
     sender_username = Column(String, nullable=False)
+    receiver_username = Column(String, nullable=False)   # naya — kisko bheja
     message = Column(String, nullable=True)
     file_url = Column(String, nullable=True)
     file_type = Column(String, nullable=True)
