@@ -22,7 +22,6 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -152,7 +151,4 @@ async def upload_attachment(
     except Exception as e:
         print("Upload Error:", e)
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
-
-
-    
 
