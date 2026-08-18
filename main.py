@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -125,30 +125,32 @@ def delete_item(
 @app.post("/upload/")
 async def upload_attachment(
     file: UploadFile = File(...),
+    receiver: str = Form(...),
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    try:
-        file_url = upload_file(file.file)
-        file_type = "image" if file.content_type.startswith("image/") else "file"
+    file_url = upload_file(file.file)
+    file_type = "image" if file.content_type.startswith("image/") else "file"
 
-        saved_msg = crud.save_message(
-            db, sender_username=current_user.username,
-            message=None, file_url=file_url, file_type=file_type
-        )
+    saved_msg = crud.save_message(
+        db,
+        sender_username=current_user.username,
+        receiver_username=receiver,   # yeh line honi chahiye
+        message=None,
+        file_url=file_url,
+        file_type=file_type
+    )
 
-        import json
-        await manager.broadcast(
-            json.dumps({
-                "sender": current_user.username,
-                "file_url": file_url,
-                "file_type": file_type
-            }),
-            sender=None
-        )
+    import json
+    payload = json.dumps({
+        "type": "message",
+        "sender": current_user.username,
+        "text": None,
+        "file_url": file_url,
+        "file_type": file_type,
+        "timestamp": saved_msg.timestamp.isoformat(),
+    })
 
-        return {"file_url": file_url, "file_type": file_type}
-    except Exception as e:
-        print("Upload Error:", e)
-        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+    await manager.send_to_user(receiver, payload)
 
+    return {"file_url": file_url, "file_type": file_type, "timestamp": saved_msg.timestamp.isoformat()}

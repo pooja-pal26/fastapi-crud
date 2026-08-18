@@ -7,9 +7,10 @@ from auth import hash_password
 def get_recent_messages(db: Session, limit: int = 50):
     return db.query(models.ChatMessage).order_by(models.ChatMessage.timestamp.desc()).limit(limit).all()[::-1]
 
-def save_message(db: Session, sender_username: str, message: str = None, file_url: str = None, file_type: str = None):
+def save_message(db: Session, sender_username: str, receiver_username: str, message: str = None, file_url: str = None, file_type: str = None):
     db_message = models.ChatMessage(
         sender_username=sender_username,
+        receiver_username=receiver_username,
         message=message,
         file_url=file_url,
         file_type=file_type,
@@ -18,6 +19,18 @@ def save_message(db: Session, sender_username: str, message: str = None, file_ur
     db.commit()
     db.refresh(db_message)
     return db_message
+
+
+def get_conversation(db: Session, user1: str, user2: str, limit: int = 50):
+    messages = db.query(models.ChatMessage).filter(
+        ((models.ChatMessage.sender_username == user1) & (models.ChatMessage.receiver_username == user2)) |
+        ((models.ChatMessage.sender_username == user2) & (models.ChatMessage.receiver_username == user1))
+    ).order_by(models.ChatMessage.timestamp.desc()).limit(limit).all()
+    return messages[::-1]
+
+
+def get_all_users(db: Session, exclude_username: str):
+    return db.query(models.User).filter(models.User.username != exclude_username).all()
 
 # ---------- USER CRUD ----------
 
